@@ -17,24 +17,16 @@ namespace WindowsFormsApp2
         {
             InitializeComponent();
         }
-        public void SaveBigData(long ID, string title, string descriprion, double price, string imagePath)
-        {
-            var cache = RedisConnectorHelper.Connection.GetDatabase();
-            cache.StringSet($"Title:{ID}", title);
-            cache.StringSet($"Descriprion:{ID}", descriprion);
-            cache.StringSet($"Price:{ID}", price);
-            cache.StringSet($"Image:{ID}", imagePath);
-
-        }
+        string img;
         private void save_Click(object sender, EventArgs e)
         {
-            Random id = new Random();
-            long ID = id.Next(99999999);
-            string Title = title.ToString();
-            string Descriprion = desc.ToString();
-            double Price = Convert.ToDouble(price.ToString());
-            string ImagePath = image.ImageLocation;
-            SaveBigData(ID, Title, Descriprion, Price, ImagePath);
+            Product[] pr = new Product[1];
+            pr[0] = new Product();
+            pr[0].title = title.Text;
+            pr[0].description = desc.Text;
+            pr[0].price = Convert.ToDouble(price.Text);
+            pr[0].imagePath = img;
+            RedisControl.SaveBigData(pr);
             this.Close();
         }
 
@@ -44,7 +36,7 @@ namespace WindowsFormsApp2
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
             openFileDialog1.InitialDirectory = @"C:\Users\nasty\Desktop";
-            openFileDialog1.Filter = "Image files (*.jpeg)|*.jpeg|(*.jpg)|*.jpg|(*.png)|*.png|(*.gif)|*.bmp|All files (*.*)|*.*";
+            openFileDialog1.Filter = "Image files (*.jpeg; *.jpg; *.png; *.gif; *.bmp)|*.jpeg; *.jpg; *.png; *.gif; *.bmp|All files (*.*)|*.*";
             openFileDialog1.RestoreDirectory = true;
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
@@ -61,7 +53,8 @@ namespace WindowsFormsApp2
                             // Will overwrite if the destination file already exists.
                             File.Copy(openFileDialog1.FileName, backupDir, true);
                             image.BackgroundImage = Image.FromFile(backupDir);
-                            image.BackgroundImageLayout = ImageLayout.Stretch;  
+                            image.BackgroundImageLayout = ImageLayout.Stretch;
+                            img = backupDir;
                         }
                     }
                 }
@@ -70,6 +63,12 @@ namespace WindowsFormsApp2
                     MessageBox.Show("Error: " + ex.Message);
                 }
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ProductCSV pr = new ProductCSV();
+            pr.Show();
         }
     }
 }
